@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "378871460547",
+    "project_id": "henna-mehandhi",
+    "storage_bucket": "henna-mehandhi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:378871460547:android:0848c716d352f67bcc6876",
+        "android_client_info": {
+          "package_name": "com.example.mehandhi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSUPWpc5xlCyaMqz-5WuY7fSkAEr6Zg0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
