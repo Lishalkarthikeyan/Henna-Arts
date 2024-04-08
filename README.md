@@ -1,4 +1,4 @@
-# mehandhi
+# Henna Arts
 
 A new Flutter project.
 
