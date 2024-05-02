@@ -1,11 +1,6 @@
-import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'cloudfirestore/savedataincloud.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class homepage extends StatefulWidget {
   const homepage({super.key});
@@ -57,7 +52,7 @@ class _homepageState extends State<homepage>
       if (_selectedIndex == 1) {
         Navigator.pushNamed(context, "yourpage");
       } else if (_selectedIndex == 2) {
-        Navigator.pushNamed(context, "categorypage");
+        Navigator.pushNamed(context, "cart");
       } else if (_selectedIndex == 3) {
         Navigator.pushNamed(context, "yourorderpage");
       }
@@ -124,16 +119,16 @@ class _homepageState extends State<homepage>
                   ),
                   ListTile(
                     leading: const Icon(Icons.book),
-                    title: const Text(' My Course '),
+                    title: const Text('Demo firestore'),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pushNamed(context, "demotofirestore");
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.workspace_premium),
-                    title: const Text(' Go Premium '),
+                    title: const Text('Category page'),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.popAndPushNamed(context, "categorypage");
                     },
                   ),
                   ListTile(
@@ -153,8 +148,24 @@ class _homepageState extends State<homepage>
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('LogOut'),
-                    onTap: () {
-                      Navigator.pop(context);
+                    onTap: () async{
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await prefs.remove('username');
+                      await prefs.remove('password');
+                      await prefs.remove('email');
+                      await prefs.remove('phone');
+                      await prefs.remove('isLoggedIn');
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:
+                        Text("Logged out Sucessfully",style: TextStyle(
+                          fontSize: 15,fontWeight: FontWeight.bold,
+                        ),),
+                      backgroundColor: Colors.black,duration: Duration(milliseconds: 1300),
+                        behavior: SnackBarBehavior.floating,
+                        closeIconColor: Colors.white,),);
+
+                      Navigator.pushReplacementNamed(context, 'loginpage');
+
+
                     },
                   ),
                 ],
@@ -228,11 +239,13 @@ class _homepageState extends State<homepage>
           body: TabBarView(
             controller: _tabController,
             children: [
-              Alltab(),
+              ProductListView(),
+
               ProductListView(type: "Front hand"),
               ProductListView(type: "Back Hand"),
+
               ProductListView(type: "Leg Design"),
-              Alltab(),
+              ProductListView(),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
@@ -288,173 +301,6 @@ class _homepageState extends State<homepage>
           ),
         ),
       ),
-    );
-  }
-}
-
-class Alltab extends StatefulWidget {
-  // final List<String> videos;
-
-  // Alltab(this.videos);
-
-  @override
-  State<Alltab> createState() => _AlltabState();
-}
-
-class _AlltabState extends State<Alltab> {
-  @override
-  Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('products').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        final List<DocumentSnapshot> documents = snapshot.data!.docs;
-        List<Product> products = documents
-            .map((doc) => Product.fromMap(doc.data() as Map<String, dynamic>))
-            .toList();
-
-        return GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 0,
-            mainAxisExtent: 350,
-            crossAxisSpacing: 0,
-          ),
-          itemCount: products.length,
-          itemBuilder: (BuildContext ctx, int index) {
-            final Product product = products[index];
-            return Container(
-              margin: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black38,
-                      blurRadius: 2,
-                      spreadRadius: 2,
-                    )
-                  ],
-                  borderRadius: BorderRadius.all(Radius.elliptical(20, 20))),
-              child: Column(children: [
-                Container(
-                  height: 180,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      product.image,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 5),
-                Container(
-                    child: Text(
-                  product.type,
-                  style: TextStyle(color: Colors.blueGrey),
-                )),
-                Text(
-                  product.name,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      product.rupees,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                    ),
-                    Text(
-                      product.price,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Color.fromRGBO(210, 43, 43, 1)),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      product.discount,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    RatingBar.builder(
-                      itemSize: 20,
-                      initialRating: 3,
-                      minRating: 1,
-                      direction: Axis.horizontal,
-                      itemCount: 5,
-                      itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                      itemBuilder: (context, _) => Icon(
-                        Icons.star,
-                        shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                        color: Colors.orange,
-                      ),
-                      onRatingUpdate: (rating) {
-                        print(rating);
-                      },
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      '4.0',
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '/ 5.0',
-                      style: TextStyle(
-                          color: Colors.pink[500], fontWeight: FontWeight.bold),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  height: 25,
-                  margin: EdgeInsets.only(left: 40, right: 40),
-                  decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black,
-                            spreadRadius: 0.50,
-                            blurRadius: 2)
-                      ],
-                      color: Colors.pink,
-                      borderRadius: BorderRadius.all(
-                        Radius.elliptical(
-                          20,
-                          20,
-                        ),
-                      )),
-                  child: Text(
-                    "Add to Cart",
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                )
-              ]),
-            );
-          },
-        );
-      },
     );
   }
 }

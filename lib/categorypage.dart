@@ -17,9 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get.dart';
 import 'package:mehandhi/homepage.dart';
-import 'package:mehandhi/yourorderpage.dart';
 
 // Define the Item class
 class Item {
@@ -98,6 +96,7 @@ class category extends StatelessWidget {
       ),
       home:  Scaffold(
         appBar: AppBar(title: InkWell(
+
           onTap: (){
             Navigator.push(context,MaterialPageRoute(builder: (context) => homepage(),) );
           },

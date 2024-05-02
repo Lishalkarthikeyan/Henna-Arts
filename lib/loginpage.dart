@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mehandhi/firebasecreateuser/createuser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class loginpage extends StatefulWidget {
   const loginpage({super.key});
@@ -11,9 +12,40 @@ class loginpage extends StatefulWidget {
 }
 
 class _loginpageState extends State<loginpage> {
+  late SharedPreferences prefs;
+
+
+
+  void dispose() {
+    super.dispose();
+  }
+
+  //
+  void clear() {
+    _emailcontroller.clear();
+    _passwordcontroller.clear();
+  }
+
+
+
   final _formkey = GlobalKey<FormState>();
+
   static TextEditingController _emailcontroller = TextEditingController();
   static TextEditingController _passwordcontroller = TextEditingController();
+
+    Future<void> _loginSharedPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = _emailcontroller.text;
+    String password = _passwordcontroller.text;
+
+    // Save login info
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
+    await prefs.setBool('isLoggedIn', true);
+
+    // Navigate to home screen
+    Navigator.pushReplacementNamed(context, 'homepages');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +58,19 @@ class _loginpageState extends State<loginpage> {
           height: height,
           width: width,
           color: Colors.pink,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 300),
+              child: Text(
+                "Henna Arts",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 60),
+              ),
+            ),
+          ),
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -63,6 +108,7 @@ class _loginpageState extends State<loginpage> {
                             height: 70,
                             width: 330,
                             child: TextFormField(
+                                onSaved: (a) => _emailcontroller,
                                 cursorColor: Colors.pink,
                                 cursorErrorColor: Colors.red,
                                 controller: _emailcontroller,
@@ -99,6 +145,7 @@ class _loginpageState extends State<loginpage> {
                             height: 70,
                             width: 330,
                             child: TextFormField(
+                                onSaved: (a) => _passwordcontroller,
                                 controller: _passwordcontroller,
                                 cursorErrorColor: Colors.red,
                                 cursorColor: Colors.pink,
@@ -116,12 +163,12 @@ class _loginpageState extends State<loginpage> {
                                       Radius.elliptical(30, 30),
                                     ))),
                                 validator: (a) {
-                                  RegExp passRegExp = RegExp(
-                                      r'^(?=.*[a-zA-Z]).{8,}');
+                                  RegExp passRegExp =
+                                      RegExp(r'^(?=.*[a-zA-Z]).{8,}');
                                   if (a == null || a.isEmpty) {
                                     return 'Please enter an Password.';
                                   } else if (!passRegExp.hasMatch(a)) {
-                                    return 'Passwoed contain 8 digit with one Capital letter.';
+                                    return 'Passwoed contain 8 digit with one capital letter.';
                                   }
                                   return null;
                                 }),
@@ -132,10 +179,19 @@ class _loginpageState extends State<loginpage> {
                           ),
                           InkWell(
                             onTap: () async {
-                              if (_formkey.currentState!.validate())
-                                await Authentication().signinUser(
-                                    _emailcontroller.text,
-                                    _passwordcontroller.text);
+                              if (_formkey.currentState!.validate()) {
+                                _formkey.currentState?.save();
+                                bool signInSucess = await Authentication()
+                                    .signinUser(context,_emailcontroller.text,_passwordcontroller.text);
+
+                                if (signInSucess) {
+                                  _loginSharedPreference();
+                                  clear();
+                                  dispose();
+                                } else {
+                                  print("sign in unsucessfull");
+                                }
+                              }
                             },
                             child: Container(
                               height: 45,

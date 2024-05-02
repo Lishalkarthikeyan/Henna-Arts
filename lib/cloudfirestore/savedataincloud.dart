@@ -647,6 +647,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:mehandhi/productview.dart';
+import '../cartpage.dart';
 
 class Product {
   final String image;
@@ -695,6 +697,7 @@ class firebase extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
+            ProductListView(),
             ProductListView(type: 'Front hand'),
             ProductListView(type: 'Back Hand'),
             ProductListView(type: 'Leg Design'),
@@ -706,165 +709,211 @@ class firebase extends StatelessWidget {
 }
 
 class ProductListView extends StatelessWidget {
-  final String type;
 
-  ProductListView({required this.type});
+  final String? type;
+
+
+  ProductListView({this.type});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('products')
-          .where('type', isEqualTo: type)
-          .snapshots(),
+      //if you dont need types remove this Two lines:
+
+          .collection('products').where('type', isEqualTo: type).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
+
         final List<DocumentSnapshot> documents = snapshot.data!.docs;
         List<Product> products = documents
-            .map((doc) => Product.fromMap(doc.data() as Map<String, dynamic>))
-            .toList();
+            .map((doc) => Product.fromMap(doc.data() as Map<String, dynamic>)).toList();
 
-        return  GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 0,
-                mainAxisExtent: 350,
-                crossAxisSpacing: 0,
-              ),
-              itemCount: products.length,
-              itemBuilder: (BuildContext ctx, int index) {
-                final Product product = products[index];
-                return Container(
-                  margin: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black38,
-                          blurRadius: 2,
-                          spreadRadius: 2,
-                        )
-                      ],
-                      borderRadius: BorderRadius.all(Radius.elliptical(20, 20))),
-                  child: Column(children: [
-                    Container(
-                      height: 180,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          product.image,
-                          fit: BoxFit.cover,
+
+        return   GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 0,
+                  mainAxisExtent: 350,
+                  crossAxisSpacing: 0,
+                ),
+                itemCount: products.length,
+                itemBuilder: (BuildContext ctx, int index) {
+                  final Product product = products[index];
+                  return  Container(
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 2,
+                            spreadRadius: 2,
+                          )
+                        ],
+                        borderRadius: BorderRadius.all(Radius.elliptical(20, 20))),
+                    child: Column(children: [
+
+
+                        InkWell(
+                        onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                  Productview(product: product),));
+                  },
+                      child:
+                      Container(
+                        height: 180,
+                        width: 180,
+                        margin: EdgeInsets.all(5),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child:  Image.network(
+                            product.image,
+                            fit: BoxFit.fill,
+                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              }
+                            },
+                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              return Center(child: Text('Failed to load image'));
+                            },
+                          ),
+
+
                         ),
                       ),
-                    ),
-                    SizedBox(height: 5),
-                    Container(
-                        child: Text(
-                          product.type,
-                          style: TextStyle(color: Colors.blueGrey),
-                        )),
-                    Text(
-                      product.name,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 10,
                         ),
-                        Text(
-                          product.rupees,
-                          style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                        Text(
-                          product.price,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: Color.fromRGBO(210, 43, 43, 1)),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          product.discount,
-                          style: TextStyle(fontSize: 15),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RatingBar.builder(
-                          itemSize: 20,
-                          initialRating: 3,
-                          minRating: 1,
-                          direction: Axis.horizontal,
-                          itemCount: 5,
-                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                          itemBuilder: (context, _) => Icon(
-                            Icons.star,
-                            shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                            color: Colors.orange,
+                      SizedBox(height: 5),
+                      Container(
+                          child: Text(
+                            product.type,
+                              style: TextStyle(color: Colors.pink,fontWeight: FontWeight.bold,fontSize: 16,)
+                          )),
+                      Text(
+                        product.name,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 10,
                           ),
-                          onRatingUpdate: (rating) {
-                            print(rating);
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          '4.0',
+                          Text(
+                            product.rupees,
+                            style:
+                            TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                          Text(
+                            product.price,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Color.fromRGBO(210, 43, 43, 1)),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            product.discount,
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RatingBar.builder(
+                            itemSize: 20,
+                            initialRating: 3,
+                            minRating: 1,
+                            direction: Axis.horizontal,
+                            itemCount: 5,
+                            itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                            itemBuilder: (context, _) => Icon(
+                              Icons.star,
+                              shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+                              color: Colors.orange,
+                            ),
+                            onRatingUpdate: (rating) {
+                              print(rating);
+                            },
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            '4.0',
+                            style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '/ 5.0',
+                            style: TextStyle(
+                                color: Colors.pink[500], fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                  InkWell(
+                  onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                  cart(),));
+                  },
+                  child:
+                      Container(
+                        alignment: Alignment.center,
+                        height: 25,
+                        margin: EdgeInsets.only(left: 20, right: 20),
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black,
+                                  spreadRadius: 0.20,
+                                  blurRadius: 2)
+                            ],
+                            color: Colors.pink,
+                            borderRadius: BorderRadius.all(
+                              Radius.elliptical(
+                                20,
+                                20,
+                              ),
+                            )),
+                        child: Text(
+                          "Add to Cart",
                           style: TextStyle(
-                              color: Colors.blueAccent,
+                              fontSize: 14,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                          '/ 5.0',
-                          style: TextStyle(
-                              color: Colors.pink[500], fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      height: 25,
-                      margin: EdgeInsets.only(left: 40, right: 40),
-                      decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black,
-                                spreadRadius: 0.50,
-                                blurRadius: 2)
-                          ],
-                          color: Colors.pink,
-                          borderRadius: BorderRadius.all(
-                            Radius.elliptical(
-                              20,
-                              20,
-                            ),
-                          )),
-                      child: Text(
-                        "Add to Cart",
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    )
-                  ]),
-                );
-              },
-            );
+                      )
+                  )
+                    ]
+                  ),
+
+                  );
+                },
+
+        );
           },
         );
 
   }
 }
+
+
+
+
 
