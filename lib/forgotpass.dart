@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class forgotpass extends StatefulWidget {
-  const forgotpass({super.key});
+class Forgotpassword extends StatefulWidget {
+  const Forgotpassword({super.key});
 
   @override
-  State<forgotpass> createState() => _forgotpassState();
+  State<Forgotpassword> createState() => _ForgotpasswordState();
 }
 
-class _forgotpassState extends State<forgotpass> {
+class _ForgotpasswordState extends State<Forgotpassword> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;

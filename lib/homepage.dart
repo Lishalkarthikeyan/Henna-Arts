@@ -1,6 +1,8 @@
+import 'package:mehandhi/cartpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloudfirestore/savedataincloud.dart';
 import 'package:flutter/material.dart';
+import 'package:badges/badges.dart' as badges;
 
 class homepage extends StatefulWidget {
   const homepage({super.key});
@@ -11,17 +13,10 @@ class homepage extends StatefulWidget {
 
 class _homepageState extends State<homepage>
     with SingleTickerProviderStateMixin {
+  bool isDarkMode = false;
+  final Cart cart = Cart();
+
   late TabController _tabController;
-
-  //
-  // List<String> allVideos = [
-  //   "Video 1",
-  //   "Video 2",
-  //   "Video 3",
-  //   // Add more videos as needed
-  // ];
-
-  // List<String> filteredVideos = [];
 
   @override
   void initState() {
@@ -29,20 +24,12 @@ class _homepageState extends State<homepage>
     _tabController = TabController(length: 5, vsync: this);
   }
 
-  // void filterVideos(String category) {
-  //   setState(() {
-  //     // Implement your filtering logic based on the selected category
-  //     // For example, here, we are filtering based on the category "Music"
-  //     // filteredVideos = allVideos.where((video) => video.contains(category)).toList();
-  //   });
-  // }
+  final ValueNotifier<int> cartItemCount = ValueNotifier<int>(0);
 
-  // @override
-  // void dispose() {
-  //   emailController.dispose();
-  //   phoneController.dispose();
-  //   super.dispose();
-  // }
+  void cartItemCounting() {
+    // This method should be called whenever an item is added to the cart.
+    cartItemCount.value = cart.items.length;
+  }
 
   void _ontap(int index) {
     setState(() {
@@ -52,7 +39,13 @@ class _homepageState extends State<homepage>
       if (_selectedIndex == 1) {
         Navigator.pushNamed(context, "yourpage");
       } else if (_selectedIndex == 2) {
-        Navigator.pushNamed(context, "cart");
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CartPage(cartItemCounting:cartItemCounting,
+                cart: cart,
+              ),
+            ));
       } else if (_selectedIndex == 3) {
         Navigator.pushNamed(context, "yourorderpage");
       }
@@ -148,24 +141,31 @@ class _homepageState extends State<homepage>
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('LogOut'),
-                    onTap: () async{
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                    onTap: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       await prefs.remove('username');
                       await prefs.remove('password');
                       await prefs.remove('email');
                       await prefs.remove('phone');
                       await prefs.remove('isLoggedIn');
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:
-                        Text("Logged out Sucessfully",style: TextStyle(
-                          fontSize: 15,fontWeight: FontWeight.bold,
-                        ),),
-                      backgroundColor: Colors.black,duration: Duration(milliseconds: 1300),
-                        behavior: SnackBarBehavior.floating,
-                        closeIconColor: Colors.white,),);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Logged out Sucessfully",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          backgroundColor: Colors.black,
+                          duration: Duration(milliseconds: 1300),
+                          behavior: SnackBarBehavior.floating,
+                          closeIconColor: Colors.white,
+                        ),
+                      );
 
                       Navigator.pushReplacementNamed(context, 'loginpage');
-
-
                     },
                   ),
                 ],
@@ -183,6 +183,20 @@ class _homepageState extends State<homepage>
                   color: Colors.white),
             ),
             actions: [
+              // for dark mode given below
+
+              // Switch(
+              //   value: isDarkMode,
+              //   onChanged: (value) {
+              //     setState(() {
+              //       isDarkMode = value;
+              //       // Toggle between light and dark mode
+              //       isDarkMode
+              //           ? Theme.of(context).copyWith(brightness: Brightness.dark)
+              //           : Theme.of(context).copyWith(brightness: Brightness.light);
+              //     });
+              //   },
+              // ),
               IconButton(
                 onPressed: () {
                   Navigator.pushNamed(context, "ss");
@@ -239,13 +253,11 @@ class _homepageState extends State<homepage>
           body: TabBarView(
             controller: _tabController,
             children: [
-              ProductListView(),
-
-              ProductListView(type: "Front hand"),
-              ProductListView(type: "Back Hand"),
-
-              ProductListView(type: "Leg Design"),
-              ProductListView(),
+              ProductListView(cart: cart, cartItemCount: cartItemCounting),
+              ProductListView(type: "Front hand", cart: cart, cartItemCount: cartItemCounting,),
+              ProductListView(type: "Back Hand", cart: cart, cartItemCount: cartItemCounting),
+              ProductListView(type: "Leg Design", cart: cart, cartItemCount: cartItemCounting),
+              ProductListView(cart: cart, cartItemCount: cartItemCounting),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
@@ -276,7 +288,7 @@ class _homepageState extends State<homepage>
                 letterSpacing: 3,
                 fontWeight: FontWeight.bold),
             landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
-            items: const [
+            items: [
               BottomNavigationBarItem(
                   label: "Home",
                   icon: Icon(
@@ -288,10 +300,23 @@ class _homepageState extends State<homepage>
                     Icons.account_circle_outlined,
                   )),
               BottomNavigationBarItem(
-                  label: "Cart",
-                  icon: Icon(
-                    Icons.shopping_cart_outlined,
-                  )),
+                label: "Cart",
+                icon: ValueListenableBuilder<int>(
+                    valueListenable: cartItemCount,
+                    builder: (context, value, child) {
+                      return badges.Badge(
+                        badgeAnimation: badges.BadgeAnimation.slide(),
+                        position: badges.BadgePosition.topEnd(),
+                        badgeStyle: badges.BadgeStyle(badgeColor: Colors.black
+                            ,shape:badges.BadgeShape.twitter,borderSide: BorderSide(color: Colors.white,width:1)),
+                        badgeContent: Text(value.toString(),
+                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
+                        child: Icon(
+                          Icons.shopping_cart_outlined,
+                        ),
+                      );
+                    }),
+              ),
               BottomNavigationBarItem(
                   label: "Your Orders",
                   icon: Icon(

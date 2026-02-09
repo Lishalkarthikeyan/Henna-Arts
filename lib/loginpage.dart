@@ -4,20 +4,21 @@ import 'package:flutter/widgets.dart';
 import 'package:mehandhi/firebasecreateuser/createuser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class loginpage extends StatefulWidget {
-  const loginpage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<loginpage> createState() => _loginpageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _loginpageState extends State<loginpage> {
+class _LoginPageState extends State<LoginPage> {
   late SharedPreferences prefs;
 
-
-
   void dispose() {
+    _emailcontroller.dispose();
+    _passwordcontroller.dispose();
     super.dispose();
+
   }
 
   //
@@ -26,14 +27,12 @@ class _loginpageState extends State<loginpage> {
     _passwordcontroller.clear();
   }
 
-
-
   final _formkey = GlobalKey<FormState>();
 
   static TextEditingController _emailcontroller = TextEditingController();
   static TextEditingController _passwordcontroller = TextEditingController();
 
-    Future<void> _loginSharedPreference() async {
+  Future<void> _loginSharedPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = _emailcontroller.text;
     String password = _passwordcontroller.text;
@@ -53,301 +52,312 @@ class _loginpageState extends State<loginpage> {
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: Stack(children: [
-        Container(
-          height: height,
-          width: width,
-          color: Colors.pink,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 300),
-              child: Text(
-                "Henna Arts",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 60),
-              ),
-            ),
-          ),
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Center(
-              child: Container(
-                height: height / 1.65,
-                width: width,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.elliptical(50, 50),
-                        topRight: Radius.elliptical(50, 50)),
-                    border: Border.all(color: Colors.white, width: 3)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Welcome Back!",
+
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+          Container(
+            height: height,
+            width: width,
+            color: Colors.pink,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  alignment: Alignment.bottomCenter,
+                  color: Colors.pink,
+                  child: Center(
+                    child: Text(
+                      "Henna Arts",
                       style: TextStyle(
-                          color: Colors.pink,
+                          color: Colors.white,
+                          fontStyle: FontStyle.italic,
                           fontWeight: FontWeight.bold,
-                          fontSize: 45),
+                          fontSize: 60),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Form(
-                        key: _formkey,
-                        child: Column(children: [
-                          Container(
-                            height: 70,
-                            width: 330,
-                            child: TextFormField(
-                                onSaved: (a) => _emailcontroller,
-                                cursorColor: Colors.pink,
-                                cursorErrorColor: Colors.red,
-                                controller: _emailcontroller,
-                                decoration: InputDecoration(
-                                    // contentPadding: EdgeInsets.fromLTRB(
-                                    //     20.0, 5.0, 40.0, 10.0),
-                                    prefixIcon: Icon(
-                                      Icons.mail_outline_outlined,
-                                      color: Colors.pink,
-                                    ),
-                                    labelText: "E-mail address",
-                                    labelStyle: TextStyle(color: Colors.black),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                      Radius.elliptical(30, 30),
-                                    ))),
-                                validator: (a) {
-                                  RegExp emailRegExp = RegExp(
-                                      r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+$');
-
-                                  if (a == null || a.isEmpty) {
-                                    return 'Please enter an email address.';
-                                  } else if (!emailRegExp.hasMatch(a)) {
-                                    return 'Please enter a valid email address.';
-                                  }
-                                  return null;
-                                }),
-                            margin: EdgeInsets.only(left: 40, right: 40),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            height: 70,
-                            width: 330,
-                            child: TextFormField(
-                                onSaved: (a) => _passwordcontroller,
-                                controller: _passwordcontroller,
-                                cursorErrorColor: Colors.red,
-                                cursorColor: Colors.pink,
-                                decoration: InputDecoration(
-                                    // contentPadding: EdgeInsets.fromLTRB(
-                                    //     20.0, 20.0, 40.0, 10.0),
-                                    prefixIcon: Icon(
-                                      Icons.remove_red_eye_outlined,
-                                      color: Colors.pink,
-                                    ),
-                                    labelText: "Password",
-                                    labelStyle: TextStyle(color: Colors.black),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                      Radius.elliptical(30, 30),
-                                    ))),
-                                validator: (a) {
-                                  RegExp passRegExp =
-                                      RegExp(r'^(?=.*[a-zA-Z]).{8,}');
-                                  if (a == null || a.isEmpty) {
-                                    return 'Please enter an Password.';
-                                  } else if (!passRegExp.hasMatch(a)) {
-                                    return 'Passwoed contain 8 digit with one capital letter.';
-                                  }
-                                  return null;
-                                }),
-                            margin: EdgeInsets.only(left: 40, right: 40),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          InkWell(
-                            onTap: () async {
-                              if (_formkey.currentState!.validate()) {
-                                _formkey.currentState?.save();
-                                bool signInSucess = await Authentication()
-                                    .signinUser(context,_emailcontroller.text,_passwordcontroller.text);
-
-                                if (signInSucess) {
-                                  _loginSharedPreference();
-                                  clear();
-                                  dispose();
-                                } else {
-                                  print("sign in unsucessfull");
-                                }
-                              }
-                            },
-                            child: Container(
-                              height: 45,
-                              width: 300,
-                              decoration: BoxDecoration(
-                                  color: Colors.pink,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.elliptical(30, 30)),
-                                  border: Border.all(
-                                    color: Colors.pink,
-                                    width: 0.30,
-                                    style: BorderStyle.solid,
-                                  )),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Login",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ])),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    height: height / 1.65,
+                    width: width,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.elliptical(50, 50),
+                            topRight: Radius.elliptical(50, 50)),
+                        border: Border.all(color: Colors.white, width: 3)),
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Dont have an Account? ",
+                          "Welcome Back!",
                           style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
+                              color: Colors.pink,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 45),
                         ),
-                        SizedBox(width: 5),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Form(
+                            key: _formkey,
+                            child: Column(children: [
+                              Container(
+                                height: 70,
+                                width: 330,
+                                child: TextFormField(
+                                    onSaved: (a) => _emailcontroller,
+                                    cursorColor: Colors.pink,
+                                    cursorErrorColor: Colors.red,
+                                    controller: _emailcontroller,
+                                    decoration: InputDecoration(
+                                        // contentPadding: EdgeInsets.fromLTRB(
+                                        //     20.0, 5.0, 40.0, 10.0),
+                                        prefixIcon: Icon(
+                                          Icons.mail_outline_outlined,
+                                          color: Colors.pink,
+                                        ),
+                                        labelText: "E-mail address",
+                                        labelStyle:
+                                            TextStyle(color: Colors.black),
+                                        border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                          Radius.elliptical(30, 30),
+                                        ))),
+                                    validator: (a) {
+                                      RegExp emailRegExp = RegExp(
+                                          r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+$');
+
+                                      if (a == null || a.isEmpty) {
+                                        return 'Please enter an email address.';
+                                      } else if (!emailRegExp.hasMatch(a)) {
+                                        return 'Please enter a valid email address.';
+                                      }
+                                      return null;
+                                    }),
+                                margin: EdgeInsets.only(left: 40, right: 40),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Container(
+                                height: 70,
+                                width: 330,
+                                child: TextFormField(
+                                    onSaved: (a) => _passwordcontroller,
+                                    controller: _passwordcontroller,
+                                    cursorErrorColor: Colors.red,
+                                    cursorColor: Colors.pink,
+                                    decoration: InputDecoration(
+                                        // contentPadding: EdgeInsets.fromLTRB(
+                                        //     20.0, 20.0, 40.0, 10.0),
+                                        prefixIcon: Icon(
+                                          Icons.remove_red_eye_outlined,
+                                          color: Colors.pink,
+                                        ),
+                                        labelText: "Password",
+                                        labelStyle:
+                                            TextStyle(color: Colors.black),
+                                        border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                          Radius.elliptical(30, 30),
+                                        ))),
+                                    validator: (a) {
+                                      RegExp passRegExp =
+                                          RegExp(r'^(?=.*[a-zA-Z]).{8,}');
+                                      if (a == null || a.isEmpty) {
+                                        return 'Please enter an Password.';
+                                      } else if (!passRegExp.hasMatch(a)) {
+                                        return 'Password contain 8 digit with one capital letter.';
+                                      }
+                                      return null;
+                                    }),
+                                margin: EdgeInsets.only(left: 40, right: 40),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              InkWell(
+                                onTap: () async {
+                                  if (_formkey.currentState!.validate()) {
+                                    _formkey.currentState?.save();
+                                    bool signInSucess = await Authentication()
+                                        .signinUser(
+                                            context,
+                                            _emailcontroller.text,
+                                            _passwordcontroller.text);
+
+                                    if (signInSucess) {
+                                      _loginSharedPreference();
+                                      clear();
+                                    } else {
+                                      print("sign in unsucessfull");
+                                    }
+                                  }
+                                },
+                                child: Container(
+                                  height: 45,
+                                  width: 300,
+                                  decoration: BoxDecoration(
+                                      color: Colors.pink,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.elliptical(30, 30)),
+                                      border: Border.all(
+                                        color: Colors.pink,
+                                        width: 0.30,
+                                        style: BorderStyle.solid,
+                                      )),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ])),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Dont have an Account? ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(width: 5),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(context, "registerpage");
+                              },
+                              child: Container(
+                                child: Text(
+                                  "Sign up",
+                                  style: TextStyle(
+                                      color: Colors.pink,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         InkWell(
                           onTap: () {
-                            Navigator.pushNamed(context, "registerpage");
+                            Navigator.pushNamed(context, "forgotpass");
                           },
                           child: Container(
                             child: Text(
-                              "Sign up",
+                              "Forgot Password?",
                               style: TextStyle(
-                                  color: Colors.pink,
                                   fontSize: 20,
-                                  fontWeight: FontWeight.w700),
+                                  color: Colors.pink,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 1,
+                              width: width / 2.5,
+                              child: Divider(
+                                height: 2,
+                                thickness: 1,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10, right: 10),
+                              child: Text(
+                                "OR",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.pink,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 1,
+                              width: width / 2.5,
+                              child: Divider(
+                                height: 2,
+                                thickness: 1,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Color.fromRGBO(234, 237, 237, 1),
+                                  border:
+                                      Border.all(color: Colors.pink, width: 2),
+                                  borderRadius: BorderRadius.circular(100)),
+                              child: const Image(
+                                image: AssetImage(
+                                  "assets/googlelogo.png",
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 50,
+                              width: 50,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Color.fromRGBO(234, 237, 237, 1),
+                                  border:
+                                      Border.all(color: Colors.pink, width: 2),
+                                  borderRadius: BorderRadius.circular(100)),
+                              child: const Image(
+                                image: AssetImage(
+                                  "assets/fblogo.png",
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, "forgotpass");
-                      },
-                      child: Container(
-                        child: Text(
-                          "Forgot Password?",
-                          style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.pink,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 1,
-                          width: width / 2.5,
-                          child: Divider(
-                            height: 2,
-                            thickness: 1,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10, right: 10),
-                          child: Text(
-                            "OR",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.pink,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: 1,
-                          width: width / 2.5,
-                          child: Divider(
-                            height: 2,
-                            thickness: 1,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                          height: 50,
-                          width: 50,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: Color.fromRGBO(234, 237, 237, 1),
-                              border: Border.all(color: Colors.pink, width: 2),
-                              borderRadius: BorderRadius.circular(100)),
-                          child: const Image(
-                            image: AssetImage(
-                              "assets/googlelogo.png",
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: 50,
-                          width: 50,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: Color.fromRGBO(234, 237, 237, 1),
-                              border: Border.all(color: Colors.pink, width: 2),
-                              borderRadius: BorderRadius.circular(100)),
-                          child: const Image(
-                            image: AssetImage(
-                              "assets/fblogo.png",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ]),
+          )
+        ]),
+      ),
     );
   }
 }

@@ -39,13 +39,12 @@ dependencies:
   blur: ^3.1.0
   cloud_firestore: ^4.15.6
   firebase_core: ^2.25.4
-
-
-
+  add_to_cart_animation: ^2.0.3
   firebase_auth: ^4.17.5
   flutter_rating_bar: ^4.0.1
   get: ^4.6.6
   shared_preferences: ^2.2.2
+  badges: ^3.1.2
 
 dev_dependencies:
   flutter_test:

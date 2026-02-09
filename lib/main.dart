@@ -1,10 +1,7 @@
-
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:mehandhi/cartpage.dart';
 import 'package:mehandhi/cloudfirestore/demotofirestore.dart';
-import 'package:mehandhi/cloudfirestore/savedataincloud.dart';
 import 'package:mehandhi/favoritepage.dart';
 import 'package:mehandhi/forgotpass.dart';
 import 'package:mehandhi/homepage.dart';
@@ -18,31 +15,24 @@ import 'firebase_options.dart';
 import 'profilepage.dart';
 import 'categorypage.dart';
 
-
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
-
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp( const MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
-
 class _MyAppState extends State<MyApp> {
   bool? isLoggedIn;
-
 
   @override
   void initState() {
@@ -50,28 +40,55 @@ class _MyAppState extends State<MyApp> {
     checkLoginStatus();
   }
 
-  Future<void> checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> checkLoginStatus()  async {
+    final prefs = await  SharedPreferences.getInstance();
     setState(() {
       isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-
     });
-
   }
+  //
+  // final ThemeData lightTheme = ThemeData(
+  //   brightness: Brightness.light,
+  //   primarySwatch: Colors.blue,
+  //   primaryColor: Colors.blue,
+  //   hintColor: Colors.blueAccent,
+  //   backgroundColor: Colors.white,
+  //   scaffoldBackgroundColor: Colors.white,
+  //   textTheme: TextTheme(
+  //     bodyText1: TextStyle(color: Colors.black),
+  //     bodyText2: TextStyle(color: Colors.black),
+  //   ),
+  // );
+  //
+  // final ThemeData darkTheme = ThemeData(
+  //   brightness: Brightness.dark,
+  //   primarySwatch: Colors.blue,
+  //   primaryColor: Colors.blue,
+  //   hintColor: Colors.blueAccent,
+  //   backgroundColor: Colors.black,
+  //   scaffoldBackgroundColor: Colors.black,
+  //   textTheme: TextTheme(
+  //     bodyText1: TextStyle(color: Colors.white),
+  //     bodyText2: TextStyle(color: Colors.white),
+  //   ),
+  // );
+  //
+
   @override
   Widget build(BuildContext context) {
-
-        double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    SizedBox(width: width,height: height,);
+    SizedBox(
+      width: width,
+      height: height,
+    );
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         "registerpage": (context) => registerpage(),
-        "loginpage": (context) => loginpage(),
-        "forgotpass": (context) => forgotpass(),
+        "loginpage": (context) => LoginPage(),
+        "forgotpass": (context) => Forgotpassword(),
         "homepages": (context) => homepage(),
         // "firebase" : (context) => firebase(),
         "profilepage": (context) => profilepage(),
@@ -80,52 +97,44 @@ class _MyAppState extends State<MyApp> {
         "favoritepage": (context) => Favoritepage(),
         "yourpage": (context) => Yourpage(),
         "morepage": (context) => Morepage(),
-        "cart": (context) => cart(),
         "yourorderpage": (context) => yourorderpage(),
-        // "remo": (context) => remo(),
-
       },
-      title: 'Flutter Demo',
+      title: 'Henna Arts',
+      //for dark mode given below
+
+      // theme: lightTheme,
+      // darkTheme: darkTheme,
+      // themeMode: ThemeMode.system,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:
-          Scaffold(
-              backgroundColor: Colors.pinkAccent,
-              body: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    width: (width = width),
-                    height: (height = height),
-                    color: Colors.pinkAccent,
-                    child:
-                    AnimatedSplashScreen(
-                      nextScreen:
-                           isLoggedIn
-
-                          ?? false ?homepage()
-                          : loginpage(),
-
-
-                      splash: Text("Henna  Arts",style: TextStyle(color: Colors.white,
-                          fontSize: 70,fontWeight: FontWeight.w700,fontStyle: FontStyle.italic),),
-                      backgroundColor: Colors.pink,
-                      duration: 1,
-                      splashTransition: SplashTransition.fadeTransition,
-
-                    ),
+      home: Scaffold(
+          backgroundColor: Colors.pinkAccent,
+          body: Column(
+            children: [
+              Container(
+                alignment: Alignment.center,
+                width: (width = width),
+                height: (height = height),
+                color: Colors.pinkAccent,
+                child: AnimatedSplashScreen(
+                  nextScreen: isLoggedIn ?? false ? homepage() : LoginPage(),
+                  splash: Text(
+                    "Henna  Arts",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 70,
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.italic),
                   ),
-
-
-      ],
-              )
-
-
-          ),
-
-
+                  backgroundColor: Colors.pink,
+                  duration: 1,
+                  splashTransition: SplashTransition.fadeTransition,
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

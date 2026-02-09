@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mehandhi/snackbar.dart';
 
-class
-
-Authentication {
+class Authentication {
   registerUser(BuildContext context, String email, String password,) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
